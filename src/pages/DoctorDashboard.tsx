@@ -34,17 +34,38 @@ const DoctorDashboard = () => {
     { time: '16:00', available: true },
   ]);
 
-  const appointments: Appointment[] = [
-    { id: '1', patientName: 'John Smith', patientAge: 45, date: '2024-08-12', time: '10:00', status: 'scheduled', reason: 'Regular checkup' },
-    { id: '2', patientName: 'Mary Johnson', patientAge: 32, date: '2024-08-12', time: '14:00', status: 'scheduled', reason: 'Follow-up consultation' },
-    { id: '3', patientName: 'Robert Brown', patientAge: 28, date: '2024-08-11', time: '09:00', status: 'completed', reason: 'Annual physical' },
-    { id: '4', patientName: 'Lisa Davis', patientAge: 38, date: '2024-08-11', time: '15:00', status: 'completed', reason: 'Blood pressure check' },
-  ];
+  const [appointments, setAppointments] = useState<Appointment[]>([
+    { id: '1', patientName: 'John Smith', patientAge: 45, date: '2024-08-13', time: '10:00', status: 'scheduled', reason: 'Regular checkup' },
+    { id: '2', patientName: 'Mary Johnson', patientAge: 32, date: '2024-08-13', time: '14:00', status: 'scheduled', reason: 'Follow-up consultation' },
+  ]);
 
-  const todayAppointments = appointments.filter(apt => apt.date === '2024-08-12');
+  const [recentActivity, setRecentActivity] = useState<Array<{
+    id: string;
+    type: 'completed' | 'cancelled' | 'scheduled';
+    patientName: string;
+    time: string;
+    action: string;
+  }>>([]);
+
+  const todayAppointments = appointments.filter(apt => apt.date === '2024-08-13');
   const completedToday = todayAppointments.filter(apt => apt.status === 'completed').length;
 
   const handleCompleteAppointment = (appointmentId: string) => {
+    const appointment = appointments.find(apt => apt.id === appointmentId);
+    if (!appointment) return;
+
+    // Remove from appointments
+    setAppointments(prev => prev.filter(apt => apt.id !== appointmentId));
+    
+    // Add to recent activity
+    setRecentActivity(prev => [{
+      id: appointmentId,
+      type: 'completed',
+      patientName: appointment.patientName,
+      time: appointment.time,
+      action: 'Completed appointment'
+    }, ...prev]);
+
     toast({
       title: "Appointment Completed",
       description: "Appointment marked as completed successfully.",
@@ -52,9 +73,15 @@ const DoctorDashboard = () => {
   };
 
   const handleCancelAppointment = (appointmentId: string) => {
+    const appointment = appointments.find(apt => apt.id === appointmentId);
+    if (!appointment) return;
+
+    // Permanently remove from appointments
+    setAppointments(prev => prev.filter(apt => apt.id !== appointmentId));
+
     toast({
       title: "Appointment Cancelled",
-      description: "Appointment has been cancelled.",
+      description: "Appointment has been permanently cancelled.",
       variant: "destructive",
     });
   };
@@ -248,20 +275,19 @@ const DoctorDashboard = () => {
               </MedicalCardHeader>
               <MedicalCardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-2 bg-muted/50 rounded">
-                    <CheckCircle className="h-4 w-4 text-success" />
-                    <div className="text-sm">
-                      <p className="font-medium">Completed appointment</p>
-                      <p className="text-muted-foreground">Robert Brown - 09:00</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-2 bg-muted/50 rounded">
-                    <Calendar className="h-4 w-4 text-primary" />
-                    <div className="text-sm">
-                      <p className="font-medium">New appointment scheduled</p>
-                      <p className="text-muted-foreground">Mary Johnson - 14:00</p>
-                    </div>
-                  </div>
+                  {recentActivity.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">No recent activity</p>
+                  ) : (
+                    recentActivity.map((activity) => (
+                      <div key={activity.id} className="flex items-center gap-3 p-2 bg-muted/50 rounded">
+                        <CheckCircle className="h-4 w-4 text-success" />
+                        <div className="text-sm">
+                          <p className="font-medium">{activity.action}</p>
+                          <p className="text-muted-foreground">{activity.patientName} - {activity.time}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </MedicalCardContent>
             </MedicalCard>
