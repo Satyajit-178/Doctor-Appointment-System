@@ -29,6 +29,7 @@ const PatientDashboard = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   const doctors: Doctor[] = [
     { id: '1', name: 'Dr. Sarah Johnson', specialty: 'Cardiology', rating: 4.9, availability: ['09:00', '10:00', '11:00', '14:00', '15:00'], image: '👩‍⚕️' },
@@ -37,10 +38,6 @@ const PatientDashboard = () => {
     { id: '4', name: 'Dr. Robert Wilson', specialty: 'Orthopedics', rating: 4.7, availability: ['09:00', '11:00', '14:00', '15:00', '16:30'], image: '👨‍⚕️' },
   ];
 
-  const appointments: Appointment[] = [
-    { id: '1', doctorName: 'Dr. Sarah Johnson', specialty: 'Cardiology', date: '2024-08-15', time: '10:00', status: 'scheduled' },
-    { id: '2', doctorName: 'Dr. Emily Davis', specialty: 'Pediatrics', date: '2024-08-10', time: '09:00', status: 'completed' },
-  ];
 
   const handleScheduleAppointment = () => {
     if (!selectedDoctor || !selectedDate || !selectedTime) {
@@ -51,6 +48,19 @@ const PatientDashboard = () => {
       });
       return;
     }
+
+    // Create new appointment
+    const newAppointment: Appointment = {
+      id: Date.now().toString(),
+      doctorName: selectedDoctor.name,
+      specialty: selectedDoctor.specialty,
+      date: selectedDate,
+      time: selectedTime,
+      status: 'scheduled'
+    };
+
+    // Add to appointments
+    setAppointments(prev => [...prev, newAppointment]);
 
     toast({
       title: "Appointment Scheduled",
@@ -228,7 +238,7 @@ const PatientDashboard = () => {
               <MedicalCard>
                 <MedicalCardContent className="p-6">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-primary">3</div>
+                    <div className="text-3xl font-bold text-primary">{appointments.length}</div>
                     <div className="text-sm text-muted-foreground">Total Appointments</div>
                   </div>
                 </MedicalCardContent>
@@ -236,7 +246,7 @@ const PatientDashboard = () => {
               <MedicalCard>
                 <MedicalCardContent className="p-6">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-success">2</div>
+                    <div className="text-3xl font-bold text-success">{appointments.filter(apt => apt.status === 'completed').length}</div>
                     <div className="text-sm text-muted-foreground">Completed</div>
                   </div>
                 </MedicalCardContent>
