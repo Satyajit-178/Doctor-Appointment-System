@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useUserManagement } from '@/context/UserManagementContext';
 import { Button } from '@/components/ui/button';
 import { MedicalCard, MedicalCardContent, MedicalCardDescription, MedicalCardHeader, MedicalCardTitle } from '@/components/ui/medical-card';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +25,7 @@ interface TimeSlot {
 
 const DoctorDashboard = () => {
   const { user, logout } = useAuth();
+  const { getPatients } = useUserManagement();
   const [isAvailable, setIsAvailable] = useState(true);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([
     { time: '09:00', available: true },

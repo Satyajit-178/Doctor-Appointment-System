@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useUserManagement, User } from '@/context/UserManagementContext';
 import { Button } from '@/components/ui/button';
 import { MedicalCard, MedicalCardContent, MedicalCardDescription, MedicalCardHeader, MedicalCardTitle } from '@/components/ui/medical-card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 import { Users, UserPlus, Activity, Calendar, Shield, LogOut, Search, Plus, Edit, Trash2, BarChart3 } from 'lucide-react';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'patient' | 'doctor' | 'admin';
-  status: 'active' | 'inactive';
-  createdAt: string;
-}
 
 interface SystemStats {
   totalUsers: number;
@@ -29,27 +23,24 @@ interface SystemStats {
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
+  const { users, addUser, updateUser, deleteUser, getDoctors, getPatients } = useUserManagement();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<string>('all');
   const [showAddUser, setShowAddUser] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
-    role: 'patient' as 'patient' | 'doctor' | 'admin'
+    role: 'patient' as 'patient' | 'doctor' | 'admin',
+    status: 'active' as 'active' | 'inactive',
+    specialization: '',
+    phone: ''
   });
-
-  const users: User[] = [
-    { id: '1', name: 'Dr. Sarah Johnson', email: 'sarah.johnson@hospital.com', role: 'doctor', status: 'active', createdAt: '2024-01-15' },
-    { id: '2', name: 'Dr. Michael Chen', email: 'michael.chen@hospital.com', role: 'doctor', status: 'active', createdAt: '2024-02-20' },
-    { id: '3', name: 'John Smith', email: 'john.smith@email.com', role: 'patient', status: 'active', createdAt: '2024-03-10' },
-    { id: '4', name: 'Mary Johnson', email: 'mary.johnson@email.com', role: 'patient', status: 'active', createdAt: '2024-03-15' },
-    { id: '5', name: 'Admin User', email: 'admin@hospital.com', role: 'admin', status: 'active', createdAt: '2024-01-01' },
-  ];
 
   const systemStats: SystemStats = {
     totalUsers: users.length,
-    totalDoctors: users.filter(u => u.role === 'doctor').length,
-    totalPatients: users.filter(u => u.role === 'patient').length,
+    totalDoctors: getDoctors().length,
+    totalPatients: getPatients().length,
     totalAppointments: 156,
     completedAppointments: 132,
     pendingAppointments: 24,
@@ -72,22 +63,83 @@ const AdminDashboard = () => {
       return;
     }
 
+    const userData = {
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      status: newUser.status,
+      ...(newUser.role === 'doctor' && { specialization: newUser.specialization }),
+      ...(newUser.phone && { phone: newUser.phone })
+    };
+
+    addUser(userData);
+
     toast({
       title: "User Added",
       description: `${newUser.name} has been added successfully.`,
     });
 
     // Reset form
-    setNewUser({ name: '', email: '', role: 'patient' });
+    setNewUser({ name: '', email: '', role: 'patient', status: 'active', specialization: '', phone: '' });
     setShowAddUser(false);
   };
 
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setNewUser({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      specialization: user.specialization || '',
+      phone: user.phone || ''
+    });
+  };
+
+  const handleUpdateUser = () => {
+    if (!editingUser || !newUser.name || !newUser.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const updates = {
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      status: newUser.status,
+      ...(newUser.role === 'doctor' && { specialization: newUser.specialization }),
+      ...(newUser.phone && { phone: newUser.phone })
+    };
+
+    updateUser(editingUser.id, updates);
+
+    toast({
+      title: "User Updated",
+      description: `${newUser.name} has been updated successfully.`,
+    });
+
+    // Reset form
+    setEditingUser(null);
+    setNewUser({ name: '', email: '', role: 'patient', status: 'active', specialization: '', phone: '' });
+  };
+
   const handleDeleteUser = (userId: string, userName: string) => {
+    deleteUser(userId);
     toast({
       title: "User Deleted",
       description: `${userName} has been removed from the system.`,
       variant: "destructive",
     });
+  };
+
+  const resetForm = () => {
+    setEditingUser(null);
+    setNewUser({ name: '', email: '', role: 'patient', status: 'active', specialization: '', phone: '' });
+    setShowAddUser(false);
   };
 
   const getRoleColor = (role: string) => {
@@ -231,10 +283,10 @@ const AdminDashboard = () => {
                   </Select>
                 </div>
 
-                {/* Add User Form */}
-                {showAddUser && (
+                {/* Add/Edit User Form */}
+                {(showAddUser || editingUser) && (
                   <div className="p-4 bg-muted/50 rounded-lg mb-6">
-                    <h4 className="font-medium mb-4">Add New User</h4>
+                    <h4 className="font-medium mb-4">{editingUser ? 'Edit User' : 'Add New User'}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <Label htmlFor="name">Full Name</Label>
@@ -269,9 +321,48 @@ const AdminDashboard = () => {
                         </Select>
                       </div>
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                      <div>
+                        <Label htmlFor="phone">Phone (Optional)</Label>
+                        <Input
+                          id="phone"
+                          value={newUser.phone}
+                          onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+                          placeholder="Enter phone number"
+                        />
+                      </div>
+                      {newUser.role === 'doctor' && (
+                        <div>
+                          <Label htmlFor="specialization">Specialization</Label>
+                          <Input
+                            id="specialization"
+                            value={newUser.specialization}
+                            onChange={(e) => setNewUser({ ...newUser, specialization: e.target.value })}
+                            placeholder="Enter specialization"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <Label htmlFor="status">Status</Label>
+                        <Select value={newUser.status} onValueChange={(value: 'active' | 'inactive') => setNewUser({ ...newUser, status: value })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                     <div className="flex gap-2 mt-4">
-                      <Button onClick={handleAddUser} variant="success">Add User</Button>
-                      <Button onClick={() => setShowAddUser(false)} variant="outline">Cancel</Button>
+                      <Button 
+                        onClick={editingUser ? handleUpdateUser : handleAddUser} 
+                        variant="success"
+                      >
+                        {editingUser ? 'Update User' : 'Add User'}
+                      </Button>
+                      <Button onClick={resetForm} variant="outline">Cancel</Button>
                     </div>
                   </div>
                 )}
@@ -287,6 +378,12 @@ const AdminDashboard = () => {
                         <div>
                           <h4 className="font-medium">{user.name}</h4>
                           <p className="text-sm text-muted-foreground">{user.email}</p>
+                          {user.specialization && (
+                            <p className="text-xs text-primary">Specialization: {user.specialization}</p>
+                          )}
+                          {user.phone && (
+                            <p className="text-xs text-muted-foreground">Phone: {user.phone}</p>
+                          )}
                           <p className="text-xs text-muted-foreground">Joined: {user.createdAt}</p>
                         </div>
                       </div>
@@ -298,7 +395,11 @@ const AdminDashboard = () => {
                           {user.status}
                         </Badge>
                         <div className="flex gap-1">
-                          <Button size="sm" variant="ghost">
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => handleEditUser(user)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button 
