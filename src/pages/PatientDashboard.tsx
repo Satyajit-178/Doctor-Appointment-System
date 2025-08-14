@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useUserManagement } from '@/context/UserManagementContext';
+import { useAppointments } from '@/context/AppointmentContext';
 import { Button } from '@/components/ui/button';
 import { MedicalCard, MedicalCardContent, MedicalCardDescription, MedicalCardHeader, MedicalCardTitle } from '@/components/ui/medical-card';
 import { Badge } from '@/components/ui/badge';
@@ -16,22 +17,17 @@ interface Doctor {
   image: string;
 }
 
-interface Appointment {
-  id: string;
-  doctorName: string;
-  specialty: string;
-  date: string;
-  time: string;
-  status: 'scheduled' | 'completed' | 'cancelled';
-}
 
 const PatientDashboard = () => {
   const { user, logout } = useAuth();
-  const { getDoctors } = useUserManagement();
+  const { getDoctors, getUserById } = useUserManagement();
+  const { addAppointment, getAppointmentsByPatient } = useAppointments();
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  // Get patient's appointments
+  const appointments = getAppointmentsByPatient(user?.id || '');
 
   // Get doctors from UserManagementContext and convert to Doctor format
   const systemDoctors = getDoctors();
@@ -46,7 +42,7 @@ const PatientDashboard = () => {
 
 
   const handleScheduleAppointment = () => {
-    if (!selectedDoctor || !selectedDate || !selectedTime) {
+    if (!selectedDoctor || !selectedDate || !selectedTime || !user) {
       toast({
         title: "Missing Information",
         description: "Please select a doctor, date, and time.",
@@ -55,18 +51,25 @@ const PatientDashboard = () => {
       return;
     }
 
+    // Get patient details
+    const patient = getUserById(user.id);
+
     // Create new appointment
-    const newAppointment: Appointment = {
-      id: Date.now().toString(),
+    const newAppointment = {
+      patientId: user.id,
+      patientName: patient?.name || user.name,
+      patientAge: 30, // Default age
+      doctorId: selectedDoctor.id,
       doctorName: selectedDoctor.name,
-      specialty: selectedDoctor.specialty,
       date: selectedDate,
       time: selectedTime,
-      status: 'scheduled'
+      status: 'scheduled' as const,
+      reason: 'Consultation',
+      specialty: selectedDoctor.specialty
     };
 
     // Add to appointments
-    setAppointments(prev => [...prev, newAppointment]);
+    addAppointment(newAppointment);
 
     toast({
       title: "Appointment Scheduled",

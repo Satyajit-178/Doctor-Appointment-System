@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useUserManagement } from '@/context/UserManagementContext';
+import { useAppointments } from '@/context/AppointmentContext';
 import { Button } from '@/components/ui/button';
 import { MedicalCard, MedicalCardContent, MedicalCardDescription, MedicalCardHeader, MedicalCardTitle } from '@/components/ui/medical-card';
 import { Badge } from '@/components/ui/badge';
@@ -8,15 +9,6 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Calendar, Clock, User, Stethoscope, LogOut, Settings, CheckCircle, XCircle } from 'lucide-react';
 
-interface Appointment {
-  id: string;
-  patientName: string;
-  patientAge: number;
-  date: string;
-  time: string;
-  status: 'scheduled' | 'completed' | 'cancelled';
-  reason: string;
-}
 
 interface TimeSlot {
   time: string;
@@ -25,21 +17,18 @@ interface TimeSlot {
 
 const DoctorDashboard = () => {
   const { user, logout } = useAuth();
-  const { getPatients } = useUserManagement();
+  const { getUserById } = useUserManagement();
+  const { getAppointmentsByDoctor, updateAppointment, deleteAppointment } = useAppointments();
   const [isAvailable, setIsAvailable] = useState(true);
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([
-    { time: '09:00', available: true },
-    { time: '10:00', available: true },
-    { time: '11:00', available: false },
-    { time: '14:00', available: true },
-    { time: '15:00', available: true },
-    { time: '16:00', available: true },
-  ]);
 
-  const [appointments, setAppointments] = useState<Appointment[]>([
-    { id: '1', patientName: 'John Smith', patientAge: 45, date: '2024-08-13', time: '10:00', status: 'scheduled', reason: 'Regular checkup' },
-    { id: '2', patientName: 'Mary Johnson', patientAge: 32, date: '2024-08-13', time: '14:00', status: 'scheduled', reason: 'Follow-up consultation' },
-  ]);
+  // Get current doctor's details
+  const currentDoctor = getUserById(user?.id || '');
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(
+    currentDoctor?.timeSlots?.map(time => ({ time, available: true })) || []
+  );
+
+  // Get doctor's appointments
+  const appointments = getAppointmentsByDoctor(user?.id || '');
 
   const [recentActivity, setRecentActivity] = useState<Array<{
     id: string;
@@ -49,15 +38,16 @@ const DoctorDashboard = () => {
     action: string;
   }>>([]);
 
-  const todayAppointments = appointments.filter(apt => apt.date === '2024-08-13');
+  const today = new Date().toISOString().split('T')[0];
+  const todayAppointments = appointments.filter(apt => apt.date === today);
   const completedToday = todayAppointments.filter(apt => apt.status === 'completed').length;
 
   const handleCompleteAppointment = (appointmentId: string) => {
     const appointment = appointments.find(apt => apt.id === appointmentId);
     if (!appointment) return;
 
-    // Remove from appointments
-    setAppointments(prev => prev.filter(apt => apt.id !== appointmentId));
+    // Update appointment status to completed
+    updateAppointment(appointmentId, { status: 'completed' });
     
     // Add to recent activity
     setRecentActivity(prev => [{
@@ -75,11 +65,8 @@ const DoctorDashboard = () => {
   };
 
   const handleCancelAppointment = (appointmentId: string) => {
-    const appointment = appointments.find(apt => apt.id === appointmentId);
-    if (!appointment) return;
-
     // Permanently remove from appointments
-    setAppointments(prev => prev.filter(apt => apt.id !== appointmentId));
+    deleteAppointment(appointmentId);
 
     toast({
       title: "Appointment Cancelled",

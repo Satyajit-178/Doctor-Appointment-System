@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { UserManagementProvider, useUserManagement } from "@/context/UserManagementContext";
+import { AppointmentProvider } from "@/context/AppointmentContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -71,7 +72,9 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <UserManagementProvider>
-            <AppContent />
+            <AppointmentProvider>
+              <AppContent />
+            </AppointmentProvider>
           </UserManagementProvider>
         </AuthProvider>
       </BrowserRouter>
