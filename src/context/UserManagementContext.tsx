@@ -9,6 +9,7 @@ export interface User {
   createdAt: string;
   specialization?: string; // For doctors
   phone?: string;
+  timeSlots?: string[]; // Available time slots for doctors
 }
 
 interface UserManagementContextType {
@@ -42,7 +43,8 @@ export const UserManagementProvider: React.FC<{ children: ReactNode }> = ({ chil
       status: 'active', 
       createdAt: '2024-01-15',
       specialization: 'Cardiology',
-      phone: '+1-555-0101'
+      phone: '+1-555-0101',
+      timeSlots: ['09:00', '10:00', '11:00', '14:00', '15:00']
     },
     { 
       id: '2', 
@@ -52,7 +54,8 @@ export const UserManagementProvider: React.FC<{ children: ReactNode }> = ({ chil
       status: 'active', 
       createdAt: '2024-02-20',
       specialization: 'Pediatrics',
-      phone: '+1-555-0102'
+      phone: '+1-555-0102',
+      timeSlots: ['09:30', '10:30', '13:00', '14:30', '16:00']
     },
     { 
       id: '3', 
@@ -62,7 +65,8 @@ export const UserManagementProvider: React.FC<{ children: ReactNode }> = ({ chil
       status: 'active', 
       createdAt: '2024-03-01',
       specialization: 'Neurology',
-      phone: '+1-555-0103'
+      phone: '+1-555-0103',
+      timeSlots: ['08:00', '09:00', '10:00', '13:30', '15:30']
     },
   ]);
 

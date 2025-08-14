@@ -3,8 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import React from "react";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { UserManagementProvider } from "@/context/UserManagementContext";
+import { UserManagementProvider, useUserManagement } from "@/context/UserManagementContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -16,8 +17,14 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const AppRoutes = () => {
-  const { isAuthenticated, user } = useAuth();
+const AppContent = () => {
+  const { isAuthenticated, user, setUsers } = useAuth();
+  const { users } = useUserManagement();
+
+  // Sync users from UserManagementContext to AuthContext
+  React.useEffect(() => {
+    setUsers(users);
+  }, [users, setUsers]);
 
   return (
     <Routes>
@@ -64,7 +71,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <UserManagementProvider>
-            <AppRoutes />
+            <AppContent />
           </UserManagementProvider>
         </AuthProvider>
       </BrowserRouter>

@@ -33,12 +33,16 @@ const PatientDashboard = () => {
   const [selectedTime, setSelectedTime] = useState('');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
-  const doctors: Doctor[] = [
-    { id: '1', name: 'Dr. Sarah Johnson', specialty: 'Cardiology', rating: 4.9, availability: ['09:00', '10:00', '11:00', '14:00', '15:00'], image: '👩‍⚕️' },
-    { id: '2', name: 'Dr. Michael Chen', specialty: 'Neurology', rating: 4.8, availability: ['09:30', '10:30', '13:00', '14:30', '16:00'], image: '👨‍⚕️' },
-    { id: '3', name: 'Dr. Emily Davis', specialty: 'Pediatrics', rating: 4.9, availability: ['08:00', '09:00', '10:00', '13:30', '15:30'], image: '👩‍⚕️' },
-    { id: '4', name: 'Dr. Robert Wilson', specialty: 'Orthopedics', rating: 4.7, availability: ['09:00', '11:00', '14:00', '15:00', '16:30'], image: '👨‍⚕️' },
-  ];
+  // Get doctors from UserManagementContext and convert to Doctor format
+  const systemDoctors = getDoctors();
+  const doctors: Doctor[] = systemDoctors.map(doctor => ({
+    id: doctor.id,
+    name: doctor.name,
+    specialty: doctor.specialization || 'General Practice',
+    rating: 4.8, // Default rating
+    availability: doctor.timeSlots || [],
+    image: '👩‍⚕️' // Default image
+  }));
 
 
   const handleScheduleAppointment = () => {
@@ -123,35 +127,45 @@ const PatientDashboard = () => {
                 {/* Doctor Selection */}
                 <div className="space-y-3">
                   <h3 className="font-semibold">Select Doctor</h3>
-                  <div className="grid grid-cols-1 gap-3">
-                    {doctors.map((doctor) => (
-                      <div
-                        key={doctor.id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-medical ${
-                          selectedDoctor?.id === doctor.id 
-                            ? 'border-primary bg-primary/5' 
-                            : 'border-border hover:border-primary/50'
-                        }`}
-                        onClick={() => setSelectedDoctor(doctor)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{doctor.image}</span>
-                          <div className="flex-1">
-                            <h4 className="font-medium">{doctor.name}</h4>
-                            <p className="text-sm text-muted-foreground">{doctor.specialty}</p>
-                            <div className="flex items-center gap-1 mt-1">
-                              <span className="text-yellow-500">⭐</span>
-                              <span className="text-sm font-medium">{doctor.rating}</span>
+                  {doctors.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>No doctors available at the moment.</p>
+                      <p className="text-sm">Please check back later or contact admin.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-3">
+                      {doctors.map((doctor) => (
+                        <div
+                          key={doctor.id}
+                          className={`p-4 border rounded-lg cursor-pointer transition-medical ${
+                            selectedDoctor?.id === doctor.id 
+                              ? 'border-primary bg-primary/5' 
+                              : 'border-border hover:border-primary/50'
+                          }`}
+                          onClick={() => setSelectedDoctor(doctor)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">{doctor.image}</span>
+                            <div className="flex-1">
+                              <h4 className="font-medium">{doctor.name}</h4>
+                              <p className="text-sm text-muted-foreground">{doctor.specialty}</p>
+                              <div className="flex items-center gap-1 mt-1">
+                                <span className="text-yellow-500">⭐</span>
+                                <span className="text-sm font-medium">{doctor.rating}</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {doctor.availability.length} time slots available
+                              </p>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Date and Time Selection */}
-                {selectedDoctor && (
+                {selectedDoctor && selectedDoctor.availability.length > 0 && (
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">Select Date</label>
@@ -190,6 +204,13 @@ const PatientDashboard = () => {
                     </Button>
                   </div>
                 )}
+
+                {selectedDoctor && selectedDoctor.availability.length === 0 && (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <p>No time slots available for this doctor.</p>
+                    <p className="text-sm">Please contact admin to set up availability.</p>
+                  </div>
+                )}
               </MedicalCardContent>
             </MedicalCard>
           </div>
@@ -208,29 +229,37 @@ const PatientDashboard = () => {
               </MedicalCardHeader>
               <MedicalCardContent>
                 <div className="space-y-4">
-                  {appointments.map((appointment) => (
-                    <div key={appointment.id} className="p-4 border border-border rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          <h4 className="font-medium">{appointment.doctorName}</h4>
-                          <p className="text-sm text-muted-foreground">{appointment.specialty}</p>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              {appointment.date}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {appointment.time}
-                            </span>
-                          </div>
-                        </div>
-                        <Badge className={getStatusColor(appointment.status)}>
-                          {appointment.status}
-                        </Badge>
-                      </div>
+                  {appointments.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No appointments scheduled yet.</p>
+                      <p className="text-sm">Book your first appointment to get started!</p>
                     </div>
-                  ))}
+                  ) : (
+                    appointments.map((appointment) => (
+                      <div key={appointment.id} className="p-4 border border-border rounded-lg">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <h4 className="font-medium">{appointment.doctorName}</h4>
+                            <p className="text-sm text-muted-foreground">{appointment.specialty}</p>
+                            <div className="flex items-center gap-4 text-sm">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                {appointment.date}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                {appointment.time}
+                              </span>
+                            </div>
+                          </div>
+                          <Badge className={getStatusColor(appointment.status)}>
+                            {appointment.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </MedicalCardContent>
             </MedicalCard>

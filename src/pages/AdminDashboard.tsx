@@ -34,8 +34,15 @@ const AdminDashboard = () => {
     role: 'patient' as 'patient' | 'doctor' | 'admin',
     status: 'active' as 'active' | 'inactive',
     specialization: '',
-    phone: ''
+    phone: '',
+    timeSlots: [] as string[]
   });
+
+  const availableTimeSlots = [
+    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+    '16:00', '16:30', '17:00', '17:30', '18:00'
+  ];
 
   const systemStats: SystemStats = {
     totalUsers: users.length,
@@ -68,7 +75,10 @@ const AdminDashboard = () => {
       email: newUser.email,
       role: newUser.role,
       status: newUser.status,
-      ...(newUser.role === 'doctor' && { specialization: newUser.specialization }),
+      ...(newUser.role === 'doctor' && { 
+        specialization: newUser.specialization,
+        timeSlots: newUser.timeSlots 
+      }),
       ...(newUser.phone && { phone: newUser.phone })
     };
 
@@ -80,7 +90,7 @@ const AdminDashboard = () => {
     });
 
     // Reset form
-    setNewUser({ name: '', email: '', role: 'patient', status: 'active', specialization: '', phone: '' });
+    setNewUser({ name: '', email: '', role: 'patient', status: 'active', specialization: '', phone: '', timeSlots: [] });
     setShowAddUser(false);
   };
 
@@ -92,7 +102,8 @@ const AdminDashboard = () => {
       role: user.role,
       status: user.status,
       specialization: user.specialization || '',
-      phone: user.phone || ''
+      phone: user.phone || '',
+      timeSlots: user.timeSlots || []
     });
   };
 
@@ -111,7 +122,10 @@ const AdminDashboard = () => {
       email: newUser.email,
       role: newUser.role,
       status: newUser.status,
-      ...(newUser.role === 'doctor' && { specialization: newUser.specialization }),
+      ...(newUser.role === 'doctor' && { 
+        specialization: newUser.specialization,
+        timeSlots: newUser.timeSlots 
+      }),
       ...(newUser.phone && { phone: newUser.phone })
     };
 
@@ -124,7 +138,7 @@ const AdminDashboard = () => {
 
     // Reset form
     setEditingUser(null);
-    setNewUser({ name: '', email: '', role: 'patient', status: 'active', specialization: '', phone: '' });
+    setNewUser({ name: '', email: '', role: 'patient', status: 'active', specialization: '', phone: '', timeSlots: [] });
   };
 
   const handleDeleteUser = (userId: string, userName: string) => {
@@ -138,8 +152,17 @@ const AdminDashboard = () => {
 
   const resetForm = () => {
     setEditingUser(null);
-    setNewUser({ name: '', email: '', role: 'patient', status: 'active', specialization: '', phone: '' });
+    setNewUser({ name: '', email: '', role: 'patient', status: 'active', specialization: '', phone: '', timeSlots: [] });
     setShowAddUser(false);
+  };
+
+  const handleTimeSlotToggle = (timeSlot: string) => {
+    setNewUser(prev => ({
+      ...prev,
+      timeSlots: prev.timeSlots.includes(timeSlot)
+        ? prev.timeSlots.filter(slot => slot !== timeSlot)
+        : [...prev.timeSlots, timeSlot]
+    }));
   };
 
   const getRoleColor = (role: string) => {
@@ -355,6 +378,31 @@ const AdminDashboard = () => {
                         </Select>
                       </div>
                     </div>
+                    
+                    {/* Time Slots for Doctors */}
+                    {newUser.role === 'doctor' && (
+                      <div className="mt-4">
+                        <Label>Available Time Slots</Label>
+                        <div className="grid grid-cols-4 gap-2 mt-2 p-4 border border-border rounded-lg max-h-32 overflow-y-auto">
+                          {availableTimeSlots.map((timeSlot) => (
+                            <Button
+                              key={timeSlot}
+                              type="button"
+                              size="sm"
+                              variant={newUser.timeSlots.includes(timeSlot) ? "default" : "outline"}
+                              onClick={() => handleTimeSlotToggle(timeSlot)}
+                              className="text-xs"
+                            >
+                              {timeSlot}
+                            </Button>
+                          ))}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Selected: {newUser.timeSlots.length} time slots
+                        </p>
+                      </div>
+                    )}
+                    
                     <div className="flex gap-2 mt-4">
                       <Button 
                         onClick={editingUser ? handleUpdateUser : handleAddUser} 
@@ -383,6 +431,9 @@ const AdminDashboard = () => {
                           )}
                           {user.phone && (
                             <p className="text-xs text-muted-foreground">Phone: {user.phone}</p>
+                          )}
+                          {user.timeSlots && user.timeSlots.length > 0 && (
+                            <p className="text-xs text-muted-foreground">Available slots: {user.timeSlots.length}</p>
                           )}
                           <p className="text-xs text-muted-foreground">Joined: {user.createdAt}</p>
                         </div>
