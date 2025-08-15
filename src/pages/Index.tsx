@@ -56,9 +56,9 @@ const Index = () => {
             </Button>
             <Button 
               size="lg" 
-              variant="outline" 
+              variant="secondary"
               onClick={() => navigate('/signin')}
-              className="text-lg px-8 py-4 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground/50 transition-medical"
+              className="text-lg px-8 py-4 bg-card/95 border-2 border-primary/20 text-primary hover:bg-card hover:border-primary/40 shadow-button backdrop-blur-sm"
             >
               Sign In Now
               <ArrowRight className="ml-2 h-5 w-5" />
