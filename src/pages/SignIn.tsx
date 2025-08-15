@@ -131,7 +131,10 @@ const SignIn = () => {
             <div className="mt-6 space-y-4">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
-                  Need an account? Contact your healthcare provider
+                  Don't have an account?{' '}
+                  <Link to="/signup" className="text-primary hover:underline font-medium">
+                    Create one here
+                  </Link>
                 </p>
               </div>
               

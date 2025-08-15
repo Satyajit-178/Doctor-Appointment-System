@@ -9,8 +9,8 @@ import { UserManagementProvider, useUserManagement } from "@/context/UserManagem
 import { AppointmentProvider } from "@/context/AppointmentContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import Login from "./pages/Login";
 import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -37,18 +37,18 @@ const AppContent = () => {
           <Index />
         )
       } />
-      <Route path="/login" element={
-        isAuthenticated ? (
-          <Navigate to={`/${user?.role}`} replace />
-        ) : (
-          <Login />
-        )
-      } />
       <Route path="/signin" element={
         isAuthenticated ? (
           <Navigate to={`/${user?.role}`} replace />
         ) : (
           <SignIn />
+        )
+      } />
+      <Route path="/signup" element={
+        isAuthenticated ? (
+          <Navigate to={`/${user?.role}`} replace />
+        ) : (
+          <SignUp />
         )
       } />
       <Route path="/patient" element={

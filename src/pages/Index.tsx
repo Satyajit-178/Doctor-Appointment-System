@@ -48,7 +48,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="medical"
-              onClick={() => navigate('/signin')}
+              onClick={() => navigate('/signup')}
               className="text-lg px-8 py-4 shadow-button"
             >
               Get Started
@@ -60,7 +60,7 @@ const Index = () => {
               onClick={() => navigate('/signin')}
               className="text-lg px-8 py-4 bg-card/95 border-2 border-primary/20 text-primary hover:bg-card hover:border-primary/40 shadow-button backdrop-blur-sm"
             >
-              Sign In Now
+              Sign In
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
@@ -111,9 +111,9 @@ const Index = () => {
               <Button 
                 variant="success" 
                 className="w-full shadow-button"
-                onClick={() => navigate('/signin')}
+                onClick={() => navigate('/signup')}
               >
-                Patient Portal
+                Join as Patient
               </Button>
             </MedicalCardContent>
           </MedicalCard>
@@ -146,9 +146,9 @@ const Index = () => {
               <Button 
                 variant="default" 
                 className="w-full shadow-button"
-                onClick={() => navigate('/signin')}
+                onClick={() => navigate('/signup')}
               >
-                Doctor Portal
+                Join as Doctor
               </Button>
             </MedicalCardContent>
           </MedicalCard>
