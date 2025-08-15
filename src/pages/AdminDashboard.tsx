@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 import { Users, UserPlus, Activity, Calendar, Shield, LogOut, Search, Plus, Edit, Trash2, BarChart3 } from 'lucide-react';
+import ProfileDropdown from '@/components/ui/profile-dropdown';
 
 
 interface SystemStats {
@@ -191,10 +192,7 @@ const AdminDashboard = () => {
                 <p className="text-white/80">System Administration</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={logout} className="border-white/20 text-white hover:bg-white/10">
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <ProfileDropdown />
           </div>
         </div>
       </header>

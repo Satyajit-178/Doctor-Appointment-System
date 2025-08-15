@@ -48,8 +48,8 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="medical"
-              onClick={() => navigate('/login')}
-              className="text-lg px-8 py-4"
+              onClick={() => navigate('/signin')}
+              className="text-lg px-8 py-4 shadow-button"
             >
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -57,9 +57,11 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="text-lg px-8 py-4 border-white/20 text-white hover:bg-white/10"
+              onClick={() => navigate('/signin')}
+              className="text-lg px-8 py-4 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground/50 transition-medical"
             >
-              Learn More
+              Sign In Now
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </div>
@@ -108,10 +110,10 @@ const Index = () => {
               </ul>
               <Button 
                 variant="success" 
-                className="w-full"
-                onClick={() => navigate('/login')}
+                className="w-full shadow-button"
+                onClick={() => navigate('/signin')}
               >
-                Patient Login
+                Patient Portal
               </Button>
             </MedicalCardContent>
           </MedicalCard>
@@ -143,10 +145,10 @@ const Index = () => {
               </ul>
               <Button 
                 variant="default" 
-                className="w-full"
-                onClick={() => navigate('/login')}
+                className="w-full shadow-button"
+                onClick={() => navigate('/signin')}
               >
-                Doctor Login
+                Doctor Portal
               </Button>
             </MedicalCardContent>
           </MedicalCard>
@@ -178,19 +180,42 @@ const Index = () => {
               </ul>
               <Button 
                 variant="accent" 
-                className="w-full"
-                onClick={() => navigate('/login')}
+                className="w-full shadow-button"
+                onClick={() => navigate('/signin')}
               >
-                Admin Login
+                Admin Portal
               </Button>
             </MedicalCardContent>
           </MedicalCard>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-16 text-white/80">
-          <p className="mb-2">© 2024 DocCare System. Professional Healthcare Management.</p>
-          <p className="text-sm">Secure • Reliable • Professional</p>
+        {/* Enhanced Footer */}
+        <div className="text-center mt-20 space-y-4">
+          <div className="flex justify-center items-center gap-2 mb-4">
+            <div className="h-px bg-primary-foreground/20 flex-1"></div>
+            <Stethoscope className="h-5 w-5 text-primary-foreground/60" />
+            <div className="h-px bg-primary-foreground/20 flex-1"></div>
+          </div>
+          <p className="text-primary-foreground/90 text-lg font-medium">
+            © 2024 DocCare System
+          </p>
+          <p className="text-primary-foreground/70 text-sm">
+            Professional Healthcare Management Platform
+          </p>
+          <div className="flex justify-center items-center gap-6 text-primary-foreground/60 text-sm">
+            <span className="flex items-center gap-1">
+              <Shield className="h-4 w-4" />
+              Secure
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              Reliable
+            </span>
+            <span className="flex items-center gap-1">
+              <UserCheck className="h-4 w-4" />
+              Professional
+            </span>
+          </div>
         </div>
       </div>
     </div>

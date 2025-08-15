@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { MedicalCard, MedicalCardContent, MedicalCardDescription, MedicalCardHeader, MedicalCardTitle } from '@/components/ui/medical-card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import ProfileDropdown from '@/components/ui/profile-dropdown';
 import { toast } from '@/hooks/use-toast';
 import { Calendar, Clock, User, Stethoscope, LogOut, Settings, CheckCircle, XCircle } from 'lucide-react';
 

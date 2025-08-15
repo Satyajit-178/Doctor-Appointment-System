@@ -10,6 +10,7 @@ import { AppointmentProvider } from "@/context/AppointmentContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import SignIn from "./pages/SignIn";
 import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -41,6 +42,13 @@ const AppContent = () => {
           <Navigate to={`/${user?.role}`} replace />
         ) : (
           <Login />
+        )
+      } />
+      <Route path="/signin" element={
+        isAuthenticated ? (
+          <Navigate to={`/${user?.role}`} replace />
+        ) : (
+          <SignIn />
         )
       } />
       <Route path="/patient" element={

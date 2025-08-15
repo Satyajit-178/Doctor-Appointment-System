@@ -18,7 +18,7 @@ const buttonVariants = cva(
         medical: "bg-gradient-medical text-primary-foreground hover:scale-105 shadow-medical transition-bounce-custom",
         success: "bg-success text-success-foreground hover:bg-success/90 shadow-button",
         warning: "bg-warning text-warning-foreground hover:bg-warning/90 shadow-button",
-        accent: "bg-accent text-accent-foreground hover:bg-accent-light shadow-button",
+        accent: "bg-accent text-accent-foreground hover:bg-accent/90 shadow-button",
       },
       size: {
         default: "h-10 px-4 py-2",
