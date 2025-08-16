@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import ProfileDropdown from '@/components/ui/profile-dropdown';
 import { toast } from '@/hooks/use-toast';
 import { Calendar, Clock, User, Stethoscope, LogOut, Settings, CheckCircle, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 
 interface TimeSlot {
@@ -20,7 +21,13 @@ const DoctorDashboard = () => {
   const { user, logout } = useAuth();
   const { getUserById } = useUserManagement();
   const { getAppointmentsByDoctor, updateAppointment, deleteAppointment } = useAppointments();
+  const navigate = useNavigate();
   const [isAvailable, setIsAvailable] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   // Get current doctor's details
   const currentDoctor = getUserById(user?.id || '');
@@ -117,7 +124,7 @@ const DoctorDashboard = () => {
                   className="data-[state=checked]:bg-white/20"
                 />
               </div>
-              <Button variant="outline" size="sm" onClick={logout} className="border-white/20 text-white hover:bg-white/10">
+              <Button variant="outline" size="sm" onClick={handleLogout} className="border-white/20 text-white hover:bg-white/10">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>

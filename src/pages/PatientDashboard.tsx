@@ -7,6 +7,7 @@ import { MedicalCard, MedicalCardContent, MedicalCardDescription, MedicalCardHea
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Calendar, Clock, User, Stethoscope, LogOut, Plus, History } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Doctor {
   id: string;
@@ -22,9 +23,15 @@ const PatientDashboard = () => {
   const { user, logout } = useAuth();
   const { getDoctors, getUserById } = useUserManagement();
   const { addAppointment, getAppointmentsByPatient } = useAppointments();
+  const navigate = useNavigate();
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   // Get patient's appointments
   const appointments = getAppointmentsByPatient(user?.id || '');
@@ -104,7 +111,7 @@ const PatientDashboard = () => {
                 <p className="text-white/80">Welcome back, {user?.name}</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={logout} className="border-white/20 text-white hover:bg-white/10">
+            <Button variant="outline" size="sm" onClick={handleLogout} className="border-white/20 text-white hover:bg-white/10">
               <LogOut className="h-4 w-4 mr-2" />
               Logout
             </Button>
