@@ -124,7 +124,7 @@ const DoctorDashboard = () => {
                   className="data-[state=checked]:bg-white/20"
                 />
               </div>
-              <Button variant="outline" size="sm" onClick={handleLogout} className="border-white/20 text-white hover:bg-white/10">
+              <Button variant="outline" size="sm" onClick={handleLogout} className="border-white bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
