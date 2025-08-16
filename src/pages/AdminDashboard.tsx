@@ -22,6 +22,16 @@ interface SystemStats {
   pendingAppointments: number;
 }
 
+interface ActivityItem {
+  id: string;
+  type: 'user' | 'appointment' | 'system';
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  timestamp: string;
+  iconColor: string;
+}
+
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const { users, addUser, updateUser, deleteUser, getDoctors, getPatients } = useUserManagement();
@@ -53,6 +63,37 @@ const AdminDashboard = () => {
     completedAppointments: 132,
     pendingAppointments: 24,
   };
+
+  // Dynamic recent activity based on actual system data
+  const recentActivity: ActivityItem[] = [
+    ...users.slice(-3).map((user, index) => ({
+      id: `user-${user.id}`,
+      type: 'user' as const,
+      icon: <UserPlus className="h-4 w-4 text-success" />,
+      title: `New ${user.role} registered`,
+      description: `${user.name} - ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}`,
+      timestamp: `${index + 1} hour${index !== 0 ? 's' : ''} ago`,
+      iconColor: 'text-success'
+    })),
+    {
+      id: 'appointment-1',
+      type: 'appointment' as const,
+      icon: <Calendar className="h-4 w-4 text-primary" />,
+      title: 'Appointment completed',
+      description: getDoctors().length > 0 ? `Dr. ${getDoctors()[0].name}` : 'Dr. Sarah Johnson',
+      timestamp: '30 minutes ago',
+      iconColor: 'text-primary'
+    },
+    {
+      id: 'system-1',
+      type: 'system' as const,
+      icon: <Activity className="h-4 w-4 text-accent" />,
+      title: 'System backup completed',
+      description: 'All data backed up successfully',
+      timestamp: '2 hours ago',
+      iconColor: 'text-accent'
+    }
+  ].slice(0, 4); // Show only 4 most recent activities
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -501,27 +542,28 @@ const AdminDashboard = () => {
               </MedicalCardHeader>
               <MedicalCardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-2 bg-muted/50 rounded">
-                    <UserPlus className="h-4 w-4 text-success" />
-                    <div className="text-sm">
-                      <p className="font-medium">New user registered</p>
-                      <p className="text-muted-foreground">Mary Johnson - Patient</p>
+                  {recentActivity.length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No recent activity</p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-2 bg-muted/50 rounded">
-                    <Calendar className="h-4 w-4 text-primary" />
-                    <div className="text-sm">
-                      <p className="font-medium">Appointment completed</p>
-                      <p className="text-muted-foreground">Dr. Sarah Johnson</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-2 bg-muted/50 rounded">
-                    <Activity className="h-4 w-4 text-accent" />
-                    <div className="text-sm">
-                      <p className="font-medium">System backup completed</p>
-                      <p className="text-muted-foreground">2 hours ago</p>
-                    </div>
-                  </div>
+                  ) : (
+                    recentActivity.map((activity) => (
+                      <div 
+                        key={activity.id} 
+                        className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg transition-medical hover:bg-muted/70 animate-fade-in"
+                      >
+                        <div className={`flex-shrink-0 ${activity.iconColor}`}>
+                          {activity.icon}
+                        </div>
+                        <div className="text-sm flex-1">
+                          <p className="font-medium">{activity.title}</p>
+                          <p className="text-muted-foreground">{activity.description}</p>
+                          <p className="text-xs text-muted-foreground/80 mt-1">{activity.timestamp}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </MedicalCardContent>
             </MedicalCard>
