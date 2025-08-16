@@ -11,11 +11,38 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { User, Settings, LogOut, Shield, Stethoscope, Heart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const ProfileDropdown = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   if (!user) return null;
+
+  const handleProfileSettings = () => {
+    toast({
+      title: "Profile Settings",
+      description: "Profile settings feature coming soon!",
+    });
+  };
+
+  const handleAccountSettings = () => {
+    toast({
+      title: "Account Settings", 
+      description: "Account settings feature coming soon!",
+    });
+  };
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/');
+    toast({
+      title: "Signed out successfully",
+      description: "You have been signed out of your account.",
+    });
+  };
 
   const getRoleIcon = () => {
     switch (user.role) {
@@ -90,16 +117,16 @@ const ProfileDropdown = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleProfileSettings}>
           <User className="mr-2 h-4 w-4" />
           <span>Profile Settings</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleAccountSettings}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Account Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout} className="text-destructive">
+        <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sign Out</span>
         </DropdownMenuItem>
